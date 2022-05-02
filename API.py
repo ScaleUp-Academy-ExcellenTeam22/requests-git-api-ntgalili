@@ -1,20 +1,43 @@
 import requests
+from dataclasses import dataclass
 
 
-def requests_top_repos(language: str, num_of_repos: int):
+@dataclass
+class Repository:
     """
-    The function requests and print the popular repositories in GitHub by language
+    A class to represent a repository.
+    :ivar name: The name of the repository.
+    :ivar stars: The amount of stars.
+    :ivar language: The program language.
+    """
+    name: str
+    stars: int
+    language: str
+    
+    def __str__(self):
+        return f"{self.name} is a {self.language} repo with {self.stars} stars."
+
+
+def requests_top_repos(language: str, num_of_repos: int) -> list:
+    """
+    The function requests the popular repositories in GitHub by language.
     :param language:The programing language of the repos
     :param num_of_repos: Count of repos to request
+    :return: list of the popular repositories that return from GitHub API
     """
-    url = f"https://api.github.com/search/repositories?q=language:{language}&per_page:{num_of_repos}&sort:stars"
-    ans = requests.get(url)
-    for item in ans.json()['items']:
-        print(f"{item['name']} is a {language} repo with {item['watchers']} stars.")
+    query = f"https://api.github.com/search/repositories?q=language:{language}&per_page:{num_of_repos}&sort:stars"
+    answer_repos = requests.get(query)
+    return [Repository(item['name'],item['watchers'],language) for item in answer_repos.json()['items']]
 
 
+def main():
+    [print(repo) for repo in requests_top_repos("python",20)]
+
+
+if __name__ == "__main__":
+    main()
 """
-example of: requests_top_repos("Python",20)
+example :
 
 Python is a Python repo with 135151 stars.
 awesome-python is a Python repo with 125409 stars.
